@@ -4,9 +4,7 @@ import '../presentation/cubits/product_detail_cubit.dart';
 
 void initProductDetailDependencies(GetIt getIt) {
   // Use cases
-  getIt.registerFactory<GetProductByIdUseCase>(
-    () => GetProductByIdUseCase(repository: getIt()),
-  );
+  getIt.registerFactory<GetProductByIdUseCase>(() => GetProductByIdUseCase(repository: getIt()));
 
   // Cubit
   getIt.registerFactory<ProductDetailCubit>(

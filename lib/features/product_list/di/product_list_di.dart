@@ -5,12 +5,8 @@ import '../presentation/blocs/product_list_bloc.dart';
 
 void initProductListDependencies(GetIt getIt) {
   // Use cases
-  getIt.registerFactory<GetProductsUseCase>(
-    () => GetProductsUseCase(repository: getIt<ProductRepository>()),
-  );
+  getIt.registerFactory<GetProductsUseCase>(() => GetProductsUseCase(repository: getIt<ProductRepository>()));
 
   // BLoC
-  getIt.registerFactory<ProductListBloc>(
-    () => ProductListBloc(getProductsUseCase: getIt<GetProductsUseCase>()),
-  );
+  getIt.registerFactory<ProductListBloc>(() => ProductListBloc(getProductsUseCase: getIt<GetProductsUseCase>()));
 }

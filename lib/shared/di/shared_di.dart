@@ -14,7 +14,5 @@ void initSharedDependencies(GetIt getIt) {
   }
 
   // Repository
-  getIt.registerSingleton<ProductRepository>(
-    ProductRepositoryImpl(dataSource: getIt<ProductHiveDataSource>()),
-  );
+  getIt.registerSingleton<ProductRepository>(ProductRepositoryImpl(dataSource: getIt<ProductHiveDataSource>()));
 }
