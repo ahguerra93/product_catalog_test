@@ -1,4 +1,5 @@
 import '../../domain/entities/product_entity.dart';
+import '../../domain/models/filter_query.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../datasources/product_datasource.dart';
 
@@ -8,9 +9,9 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl({required this.dataSource});
 
   @override
-  Future<List<ProductEntity>> fetchProducts({String? query}) async {
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) async {
     try {
-      return await dataSource.fetchProducts(query: query);
+      return await dataSource.fetchProducts(filter: filter);
     } catch (e) {
       rethrow;
     }

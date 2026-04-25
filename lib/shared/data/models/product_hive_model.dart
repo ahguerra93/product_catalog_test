@@ -39,6 +39,8 @@ class ProductHiveModel {
     stock: stock,
     imageUrl: imageUrl,
   );
+
+  Currency get currency => Currency.values[currencyIndex];
 }
 
 class ProductHiveModelAdapter extends TypeAdapter<ProductHiveModel> {

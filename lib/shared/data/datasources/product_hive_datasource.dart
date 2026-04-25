@@ -3,6 +3,8 @@ import '../../../common/app_durations.dart';
 import '../../data/models/product_hive_model.dart';
 import '../../domain/entities/product_entity.dart';
 import '../../domain/enums/simulation_mode.dart';
+import '../../domain/enums/sort_type.dart';
+import '../../domain/models/filter_query.dart';
 import 'product_datasource.dart';
 
 class ProductHiveDataSource implements ProductDataSource {
@@ -25,18 +27,52 @@ class ProductHiveDataSource implements ProductDataSource {
     await box.putAll(map);
   }
 
-  Future<List<ProductEntity>> getCachedProducts({String? query}) async {
+  Future<List<ProductEntity>> getCachedProducts({FilterQuery? filter}) async {
     _checkSimulationMode();
     await Future.delayed(AppDurations.mockFastFetchDelay);
 
     final box = await _openBox();
     var results = box.values.toList();
 
-    if (query != null && query.isNotEmpty) {
-      final q = query.toLowerCase();
+    if (filter == null || !filter.hasActiveFilters) {
+      return results.map((m) => m.toEntity()).toList();
+    }
+
+    // Filter by query (name or SKU)
+    if (filter.query != null && filter.query!.isNotEmpty) {
+      final q = filter.query!.toLowerCase();
       results = results.where((m) {
         return m.name.toLowerCase().contains(q) || m.sku.toLowerCase().contains(q);
       }).toList();
+    }
+
+    // Filter by currency
+    if (filter.currency != null) {
+      results = results.where((m) => m.currency == filter.currency).toList();
+    }
+
+    // Filter by price range
+    if (filter.priceRange != null && filter.priceRange!.isValid) {
+      final minPrice = filter.priceRange!.minPrice ?? 0;
+      final maxPrice = filter.priceRange!.maxPrice ?? double.infinity;
+      results = results.where((m) => m.price >= minPrice && m.price <= maxPrice).toList();
+    }
+
+    // Filter by stock
+    if (filter.inStockOnly) {
+      results = results.where((m) => m.stock > 0).toList();
+    }
+
+    // Sort by price
+    if (filter.sorting != null) {
+      results.sort((a, b) {
+        final comparison = switch (filter.sorting!.sortType) {
+          SortType.price => a.price.compareTo(b.price),
+          SortType.name => a.name.compareTo(b.name),
+          SortType.sku => a.sku.compareTo(b.sku),
+        };
+        return filter.sorting!.orderBy.name == 'asc' ? comparison : -comparison;
+      });
     }
 
     return results.map((m) => m.toEntity()).toList();
@@ -56,7 +92,7 @@ class ProductHiveDataSource implements ProductDataSource {
   }
 
   @override
-  Future<List<ProductEntity>> fetchProducts({String? query}) => getCachedProducts(query: query);
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) => getCachedProducts(filter: filter);
 
   @override
   Future<ProductEntity?> fetchProductById(String id) => getCachedProductById(id);
