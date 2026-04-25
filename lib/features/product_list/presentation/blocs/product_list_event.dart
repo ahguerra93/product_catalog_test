@@ -22,3 +22,5 @@ class ApplyFilterEvent extends ProductListEvent {
 
   ApplyFilterEvent({required this.filter});
 }
+
+class LoadMoreProductsEvent extends ProductListEvent {}

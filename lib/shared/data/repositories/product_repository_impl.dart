@@ -11,9 +11,9 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl({required this.dataSource});
 
   @override
-  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) async {
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter, int offset = 0, int limit = 10}) async {
     try {
-      return await dataSource.fetchProducts(filter: filter);
+      return await dataSource.fetchProducts(filter: filter, offset: offset, limit: limit);
     } catch (e, stackTrace) {
       getIt<LoggerService>().logRepositoryError('ProductRepository', 'fetchProducts', e, stackTrace);
       rethrow;

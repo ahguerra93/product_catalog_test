@@ -29,7 +29,7 @@ class ProductHiveDataSource implements ProductDataSource {
     await box.putAll(map);
   }
 
-  Future<List<ProductEntity>> getCachedProducts({FilterQuery? filter}) async {
+  Future<List<ProductEntity>> getCachedProducts({FilterQuery? filter, int offset = 0, int limit = 10}) async {
     _checkSimulationMode();
     await Future.delayed(AppDurations.mockFastFetchDelay);
 
@@ -38,7 +38,8 @@ class ProductHiveDataSource implements ProductDataSource {
     getIt<LoggerService>().logCacheHit('products_cache', hit: results.isNotEmpty);
 
     if (filter == null || !filter.hasActiveFilters) {
-      final entities = results.map((m) => m.toEntity()).toList();
+      final paginated = results.skip(offset).take(limit).toList();
+      final entities = paginated.map((m) => m.toEntity()).toList();
       getIt<LoggerService>().logDataAsJson('ProductHiveDataSource.getCachedProducts', entities);
       return entities;
     }
@@ -80,7 +81,9 @@ class ProductHiveDataSource implements ProductDataSource {
       });
     }
 
-    final entities = results.map((m) => m.toEntity()).toList();
+    // Apply pagination after filtering
+    final paginated = results.skip(offset).take(limit).toList();
+    final entities = paginated.map((m) => m.toEntity()).toList();
     getIt<LoggerService>().logDataAsJson('ProductHiveDataSource.getCachedProducts', entities);
     return entities;
   }
@@ -107,7 +110,8 @@ class ProductHiveDataSource implements ProductDataSource {
   }
 
   @override
-  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) => getCachedProducts(filter: filter);
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter, int offset = 0, int limit = 10}) =>
+      getCachedProducts(filter: filter, offset: offset, limit: limit);
 
   @override
   Future<ProductEntity?> fetchProductById(String id) => getCachedProductById(id);

@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:product_catalog_test/features/product_list/presentation/widgets/filter_bottom_sheet.dart';
 import 'package:product_catalog_test/shared/data/datasources/product_datasource.dart';
+import 'package:product_catalog_test/shared/domain/entities/product_entity.dart';
 import 'package:product_catalog_test/shared/domain/models/filter_query.dart';
 import 'package:product_catalog_test/shared/presentation/widgets/error_view.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../app_colors.dart';
 
 import '../../../../common/app_dimens.dart';
@@ -50,11 +52,26 @@ class _ProductListView extends StatefulWidget {
 
 class _ProductListViewState extends State<_ProductListView> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   FilterQuery? _currentFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    // Check if we've scrolled to 80% of max scroll extent
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8) {
+      context.read<ProductListBloc>().add(LoadMoreProductsEvent());
+    }
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -97,15 +114,33 @@ class _ProductListViewState extends State<_ProductListView> {
             child: BlocBuilder<ProductListBloc, ProductListState>(
               builder: (context, state) {
                 // Update the current filter from the state
-                if (state is ProductListSuccess) {
-                  _currentFilter = state.currentFilter;
+                if (state is ProductListSuccess || state is ProductListLoadingMore || state is ProductListNoMore) {
+                  if (state is ProductListSuccess) {
+                    _currentFilter = state.currentFilter;
+                  } else if (state is ProductListLoadingMore) {
+                    _currentFilter = state.currentFilter;
+                  } else if (state is ProductListNoMore) {
+                    _currentFilter = state.currentFilter;
+                  }
                 }
                 return AnimatedSwitcher(
                   duration: AppDurations.animationDuration,
                   child: switch (state) {
-                    ProductListInitial() || ProductListLoading() => const _LoadingView(),
-                    ProductListRefreshing(:final products) => _GridView(products: products, isRefreshing: true),
-                    ProductListSuccess(:final products) => _GridView(products: products),
+                    ProductListLoading() => const _LoadingView(),
+                    ProductListSuccess(:final products) => _GridView(
+                      products: products,
+                      scrollController: _scrollController,
+                    ),
+                    ProductListLoadingMore(:final products) => _GridView(
+                      products: products,
+                      scrollController: _scrollController,
+                      isLoadingMore: true,
+                    ),
+                    ProductListNoMore(:final products) => _GridView(
+                      products: products,
+                      scrollController: _scrollController,
+                      isEndOfList: true,
+                    ),
                     ProductListEmpty() => const _EmptyView(),
                     ProductListError(:final message) => ErrorView(
                       message: message,
@@ -203,9 +238,16 @@ class _SearchBar extends StatelessWidget {
 
 class _GridView extends StatelessWidget {
   final List products;
-  final bool isRefreshing;
+  final ScrollController scrollController;
+  final bool isLoadingMore;
+  final bool isEndOfList;
 
-  const _GridView({required this.products, this.isRefreshing = false});
+  const _GridView({
+    required this.products,
+    required this.scrollController,
+    this.isLoadingMore = false,
+    this.isEndOfList = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,31 +256,33 @@ class _GridView extends StatelessWidget {
       onRefresh: () async {
         context.read<ProductListBloc>().add(RefreshProductsEvent());
       },
-      child: AnimatedOpacity(
-        duration: AppDurations.animationDuration,
-        opacity: isRefreshing ? 0.6 : 1,
-        child: GridView.builder(
-          padding: const EdgeInsets.all(AppDimens.spacingMd),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: AppDimens.spacingMd,
-            mainAxisSpacing: AppDimens.spacingMd,
-            childAspectRatio: 0.68,
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            final product = products[index];
-            return ProductCard(
-              product: product,
-              onTap: () async {
-                await context.push(AppRoutes.productDetail(product.id));
-                if (context.mounted) {
-                  context.read<ProductListBloc>().add(RefreshProductsEvent());
-                }
-              },
-            );
-          },
+      child: GridView.builder(
+        controller: scrollController,
+        padding: const EdgeInsets.all(AppDimens.spacingMd),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: AppDimens.spacingMd,
+          mainAxisSpacing: AppDimens.spacingMd,
+          childAspectRatio: 0.68,
         ),
+        itemCount: products.length + (isLoadingMore ? 1 : 0),
+        itemBuilder: (context, index) {
+          // Show loading indicator at the end
+          if (isLoadingMore && index == products.length) {
+            return Skeletonizer(child: ProductCard(product: ProductEntity.empty(), onTap: null));
+          }
+
+          final product = products[index];
+          return ProductCard(
+            product: product,
+            onTap: () async {
+              await context.push(AppRoutes.productDetail(product.id));
+              if (context.mounted) {
+                context.read<ProductListBloc>().add(FetchProductsEvent());
+              }
+            },
+          );
+        },
       ),
     );
   }
