@@ -1,10 +1,10 @@
 import '../../../../shared/domain/entities/product_entity.dart';
-import '../repositories/product_list_repository.dart';
+import '../../../../shared/domain/repositories/product_repository.dart';
 
 class GetProductsUseCase {
-  final ProductListRepository repository;
+  final ProductRepository repository;
 
   GetProductsUseCase({required this.repository});
 
-  Future<List<ProductEntity>> call() => repository.fetchProducts();
+  Future<List<ProductEntity>> call({String? query}) => repository.fetchProducts(query: query);
 }
