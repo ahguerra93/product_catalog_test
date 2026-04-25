@@ -26,10 +26,12 @@ class ProductCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: AppDimens.spacingSm,
               children: [
-                _ProductImage(imageUrl: product.imageUrl),
+                Flexible(child: _ProductImage(imageUrl: product.imageUrl)),
 
-                Padding(
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd),
+                  constraints: BoxConstraints(minHeight: AppDimens.productCardContentHeight),
+
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: AppDimens.spacingXs,

@@ -268,6 +268,7 @@ class _ProductInfoSectionState extends State<_ProductInfoSection> {
               priceInput: state.priceInput,
               onChanged: (value) => context.read<UpdateProductDetailCubit>().updatePrice(value),
               isLoading: state.isLoading,
+              currency: state.currency,
             ),
             const SizedBox(height: AppDimens.spacingSm),
             _CurrencyDropdown(
@@ -294,8 +295,14 @@ class _EditablePriceField extends StatefulWidget {
   final String priceInput;
   final Function(String) onChanged;
   final bool isLoading;
+  final Currency currency;
 
-  const _EditablePriceField({required this.priceInput, required this.onChanged, required this.isLoading});
+  const _EditablePriceField({
+    required this.priceInput,
+    required this.onChanged,
+    required this.isLoading,
+    required this.currency,
+  });
 
   @override
   State<_EditablePriceField> createState() => _EditablePriceFieldState();
@@ -339,7 +346,7 @@ class _EditablePriceFieldState extends State<_EditablePriceField> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             hintText: '0.00',
-            prefixText: '\$ ',
+            prefixText: '${widget.currency.displayLabel} ',
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppDimens.radiusMd)),
             contentPadding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd, vertical: AppDimens.spacingSm),
           ),
@@ -378,7 +385,7 @@ class _CurrencyDropdown extends StatelessWidget {
               : (Currency? currency) {
                   if (currency != null) onChanged(currency);
                 },
-          items: Currency.values.map((c) => DropdownMenuItem(value: c, child: Text(c.label))).toList(),
+          items: Currency.values.map((c) => DropdownMenuItem(value: c, child: Text(c.code))).toList(),
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppDimens.radiusMd)),
             contentPadding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd, vertical: AppDimens.spacingSm),
