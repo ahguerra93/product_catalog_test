@@ -2,7 +2,7 @@ import '../../../../shared/domain/entities/product_entity.dart';
 import '../../../../shared/domain/enums/simulation_mode.dart';
 
 abstract class ProductDataSource {
-  Future<List<ProductEntity>> fetchProducts();
+  Future<List<ProductEntity>> fetchProducts({String? query});
   Future<ProductEntity?> fetchProductById(String id);
 }
 
@@ -87,14 +87,23 @@ class ProductMockDataSource implements ProductDataSource {
   ];
 
   @override
-  Future<List<ProductEntity>> fetchProducts() async {
+  Future<List<ProductEntity>> fetchProducts({String? query}) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
-    return switch (simulationMode) {
+    final List<ProductEntity> products = switch (simulationMode) {
       SimulationMode.success => List.from(_mockProducts),
       SimulationMode.empty => [],
       SimulationMode.error => throw Exception('Failed to load products. Please try again.'),
     };
+
+    if (query == null || query.isEmpty) {
+      return products;
+    }
+
+    final q = query.toLowerCase();
+    return products.where((p) {
+      return p.name.toLowerCase().contains(q) || p.sku.toLowerCase().contains(q);
+    }).toList();
   }
 
   @override

@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:product_catalog_test/shared/data/datasources/product_datasource.dart';
 import 'package:product_catalog_test/shared/presentation/widgets/error_view.dart';
 import '../../../../app_colors.dart';
 
 import '../../../../common/app_dimens.dart';
+import '../../../../common/app_durations.dart';
 import '../../../../di/di.dart';
 import '../../../../features/settings/presentation/cubits/settings_cubit.dart';
 import '../../../../features/settings/presentation/cubits/settings_state.dart';
 import '../../../../features/settings/presentation/widgets/settings_drawer.dart';
 import '../../../../config/routing/app_routes.dart';
-import '../../domain/usecases/get_products_usecase.dart';
-import '../../data/datasources/product_datasource.dart';
-import '../cubits/product_list_cubit.dart';
-import '../cubits/product_list_state.dart';
+import '../blocs/product_list_bloc.dart';
+import '../blocs/product_list_event.dart';
+import '../blocs/product_list_state.dart';
 import '../widgets/product_card.dart';
 
 class ProductListPage extends StatelessWidget {
@@ -29,7 +30,7 @@ class ProductListPage extends StatelessWidget {
 
         return BlocProvider(
           key: ValueKey(settingsState.simulationMode),
-          create: (_) => ProductListCubit(getProductsUseCase: getIt<GetProductsUseCase>())..fetchProducts(),
+          create: (_) => getIt<ProductListBloc>()..add(FetchProductsEvent()),
           child: const _ProductListView(),
         );
       },
@@ -71,19 +72,22 @@ class _ProductListViewState extends State<_ProductListView> {
         children: [
           _SearchBar(controller: _searchController),
           Expanded(
-            child: BlocBuilder<ProductListCubit, ProductListState>(
+            child: BlocBuilder<ProductListBloc, ProductListState>(
               builder: (context, state) {
-                return switch (state) {
-                  ProductListInitial() || ProductListLoading() => const _LoadingView(),
-                  ProductListRefreshing(:final cachedData) => _GridView(products: cachedData, isRefreshing: true),
-                  ProductListSuccess(:final filteredProducts) => _GridView(products: filteredProducts),
-                  ProductListEmpty() => const _EmptyView(),
-                  ProductListError(:final message) => ErrorView(
-                    message: message,
-                    onRetry: () => context.read<ProductListCubit>().fetchProducts(),
-                  ),
-                  _ => const _LoadingView(),
-                };
+                return AnimatedSwitcher(
+                  duration: AppDurations.animationDuration,
+                  child: switch (state) {
+                    ProductListInitial() || ProductListLoading() => const _LoadingView(),
+                    ProductListRefreshing(:final products) => _GridView(products: products, isRefreshing: true),
+                    ProductListSuccess(:final products) => _GridView(products: products),
+                    ProductListEmpty() => const _EmptyView(),
+                    ProductListError(:final message) => ErrorView(
+                      message: message,
+                      onRetry: () => context.read<ProductListBloc>().add(FetchProductsEvent()),
+                    ),
+                    _ => const _LoadingView(),
+                  },
+                );
               },
             ),
           ),
@@ -105,7 +109,7 @@ class _SearchBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(AppDimens.spacingMd, 0, AppDimens.spacingMd, AppDimens.spacingMd),
       child: TextField(
         controller: controller,
-        onChanged: (query) => context.read<ProductListCubit>().search(query),
+        onChanged: (query) => context.read<ProductListBloc>().add(SearchProductsEvent(query: query)),
         decoration: InputDecoration(
           hintText: 'Search by name or SKU…',
           hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(color: context.colors.textSecondary),
@@ -118,7 +122,7 @@ class _SearchBar extends StatelessWidget {
                 icon: Icon(Icons.clear, color: context.colors.textSecondary),
                 onPressed: () {
                   controller.clear();
-                  context.read<ProductListCubit>().search('');
+                  context.read<ProductListBloc>().add(SearchProductsEvent(query: ''));
                 },
               );
             },
@@ -140,11 +144,10 @@ class _GridView extends StatelessWidget {
     return RefreshIndicator(
       color: context.colors.primary,
       onRefresh: () async {
-        context.read<ProductListCubit>().refresh();
-        // await context.read<ProductListCubit>().stream.firstWhere((s) => s is! ProductListRefreshing);
+        context.read<ProductListBloc>().add(RefreshProductsEvent());
       },
       child: AnimatedOpacity(
-        duration: Duration(milliseconds: isRefreshing ? 0 : 300),
+        duration: AppDurations.animationDuration,
         opacity: isRefreshing ? 0.6 : 1,
         child: GridView.builder(
           padding: const EdgeInsets.all(AppDimens.spacingMd),
@@ -162,7 +165,7 @@ class _GridView extends StatelessWidget {
               onTap: () async {
                 await context.push(AppRoutes.productDetail(product.id));
                 if (context.mounted) {
-                  context.read<ProductListCubit>().refresh();
+                  context.read<ProductListBloc>().add(RefreshProductsEvent());
                 }
               },
             );

@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import '../../../features/product_list/data/datasources/product_hive_datasource.dart';
+import '../../../shared/data/datasources/product_hive_datasource.dart';
 import '../data/datasources/local_product_datasource.dart';
 import '../data/repositories/startup_repository_impl.dart';
 import '../domain/repositories/startup_repository.dart';
@@ -11,8 +11,8 @@ void initStartupDependencies(GetIt getIt) {
   getIt.registerSingleton<LocalProductDataSource>(LocalProductDataSource());
 
   // Repository
-  getIt.registerFactory<StartupRepository>(
-    () => StartupRepositoryImpl(
+  getIt.registerSingleton<StartupRepository>(
+    StartupRepositoryImpl(
       productHiveDataSource: getIt<ProductHiveDataSource>(),
       localProductDataSource: getIt<LocalProductDataSource>(),
     ),

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app_colors.dart';
 import '../../../../common/app_dimens.dart';
+import '../../../../common/app_durations.dart';
 import '../../../../di/di.dart';
 import '../../../../shared/domain/entities/product_entity.dart';
-import '../../../product_list/domain/usecases/get_product_by_id_usecase.dart';
+import '../../../../shared/utils/share_handler.dart';
+import '../../domain/usecases/get_product_by_id_usecase.dart';
 import '../cubits/product_detail_cubit.dart';
 import '../cubits/product_detail_state.dart';
 
@@ -29,13 +31,45 @@ class _ProductDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProductDetailCubit, ProductDetailState>(
       builder: (context, state) {
-        return switch (state) {
-          ProductDetailLoading() => const _LoadingView(),
-          ProductDetailSuccess(:final product) => _ContentView(product: product),
-          ProductDetailNotFound() => const _NotFoundView(),
-          ProductDetailError(:final message) => _ErrorView(message: message),
-          _ => const _LoadingView(),
-        };
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              state is ProductDetailSuccess ? state.product.name : '',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Navigator.of(context).pop(),
+              tooltip: 'Back',
+            ),
+            actions: [
+              if (state is ProductDetailSuccess)
+                IconButton(
+                  icon: const Icon(Icons.share_outlined),
+                  onPressed: () => ShareHandler.shareProduct(
+                    name: state.product.name,
+                    price: state.product.formattedPrice,
+                    sku: state.product.sku,
+                  ),
+                  tooltip: 'Share product',
+                ),
+            ],
+          ),
+          body: Container(
+            color: context.colors.background,
+            child: AnimatedSwitcher(
+              duration: AppDurations.animationDuration,
+              child: switch (state) {
+                ProductDetailLoading() => const _LoadingView(),
+                ProductDetailSuccess(:final product) => _ContentView(product: product),
+                ProductDetailNotFound() => const _NotFoundView(),
+                ProductDetailError(:final message) => _ErrorView(message: message),
+                _ => const _LoadingView(),
+              },
+            ),
+          ),
+        );
       },
     );
   }
@@ -100,7 +134,6 @@ class _ContentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
