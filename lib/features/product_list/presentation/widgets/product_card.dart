@@ -8,7 +8,7 @@ import '../../../../shared/domain/entities/product_entity.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductEntity product;
-  final VoidCallback onTap;
+  final void Function()? onTap;
 
   const ProductCard({super.key, required this.product, required this.onTap});
 

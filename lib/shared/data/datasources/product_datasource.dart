@@ -6,7 +6,7 @@ import '../../../config/logger_config.dart';
 import '../../../di/di.dart';
 
 abstract class ProductDataSource {
-  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter});
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter, int offset = 0, int limit = 10});
   Future<ProductEntity?> fetchProductById(String id);
   Future<ProductEntity?> updateProduct(ProductEntity product);
 }
@@ -92,7 +92,7 @@ class ProductMockDataSource implements ProductDataSource {
   ];
 
   @override
-  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) async {
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter, int offset = 0, int limit = 10}) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
     final List<ProductEntity> products = switch (simulationMode) {
@@ -102,13 +102,9 @@ class ProductMockDataSource implements ProductDataSource {
     };
 
     if (filter == null || !filter.hasActiveFilters) {
-      getIt<LoggerService>().logDatasourceFetch(
-        'ProductMockDataSource',
-        'fetchProducts',
-        success: true,
-        data: products.length,
-      );
-      return products;
+      final paginated = products.skip(offset).take(limit).toList();
+      getIt<LoggerService>().logDataAsJson('ProductMockDataSource.fetchProducts', paginated);
+      return paginated;
     }
 
     // Apply filters
@@ -151,13 +147,10 @@ class ProductMockDataSource implements ProductDataSource {
       });
     }
 
-    getIt<LoggerService>().logDatasourceFetch(
-      'ProductMockDataSource',
-      'fetchProducts',
-      success: true,
-      data: filtered.length,
-    );
-    return filtered;
+    // Apply pagination after filtering
+    final paginated = filtered.skip(offset).take(limit).toList();
+    getIt<LoggerService>().logDataAsJson('ProductMockDataSource.fetchProducts', paginated);
+    return paginated;
   }
 
   @override

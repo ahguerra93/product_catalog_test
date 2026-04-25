@@ -7,5 +7,6 @@ class GetProductsUseCase {
 
   GetProductsUseCase({required this.repository});
 
-  Future<List<ProductEntity>> call({FilterQuery? filter}) => repository.fetchProducts(filter: filter);
+  Future<List<ProductEntity>> call({FilterQuery? filter, int offset = 0, int limit = 10}) =>
+      repository.fetchProducts(filter: filter, offset: offset, limit: limit);
 }

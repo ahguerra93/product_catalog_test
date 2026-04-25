@@ -26,6 +26,9 @@ class ProductEntity with _$ProductEntity {
     required String imageUrl,
   }) = _ProductEntity;
 
+  factory ProductEntity.empty() =>
+      const ProductEntity(id: '', name: '', sku: '', price: 0.0, currency: Currency.usd, stock: 0, imageUrl: '');
+
   String get formattedPrice {
     final symbol = currency == Currency.usd ? '\$' : 'Bs. ';
     return '$symbol${price.toStringAsFixed(2)}';
