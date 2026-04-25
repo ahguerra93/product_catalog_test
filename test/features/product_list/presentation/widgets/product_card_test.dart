@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/app_theme.dart';
 import 'package:product_catalog_test/features/product_list/presentation/widgets/product_card.dart';
 import 'package:product_catalog_test/shared/domain/entities/product_entity.dart';
@@ -58,7 +59,7 @@ void main() {
     testWidgets('displays "Out of stock" badge for out-of-stock product', (tester) async {
       await tester.pumpWidget(_wrap(ProductCard(product: tOutOfStockProduct, onTap: () {})));
 
-      expect(find.text('Out of stock'), findsOneWidget);
+      expect(find.text(AppStrings.outOfStock), findsOneWidget);
     });
 
     testWidgets('calls onTap when tapped', (tester) async {

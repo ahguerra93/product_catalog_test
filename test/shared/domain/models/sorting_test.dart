@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/shared/domain/models/sorting.dart';
 import 'package:product_catalog_test/shared/domain/enums/order_by.dart';
 import 'package:product_catalog_test/shared/domain/enums/sort_type.dart';
@@ -39,25 +40,25 @@ void main() {
 
   group('OrderBy', () {
     test('asc has correct label', () {
-      expect(OrderBy.asc.label, 'Ascending');
+      expect(OrderBy.asc.label, AppStrings.ascending);
     });
 
     test('desc has correct label', () {
-      expect(OrderBy.desc.label, 'Descending');
+      expect(OrderBy.desc.label, AppStrings.descending);
     });
   });
 
   group('SortType', () {
     test('price has correct label', () {
-      expect(SortType.price.label, 'Price');
+      expect(SortType.price.label, AppStrings.sortByPrice);
     });
 
     test('name has correct label', () {
-      expect(SortType.name.label, 'Name');
+      expect(SortType.name.label, AppStrings.sortByName);
     });
 
     test('sku has correct label', () {
-      expect(SortType.sku.label, 'SKU');
+      expect(SortType.sku.label, AppStrings.sortBySku);
     });
   });
 }

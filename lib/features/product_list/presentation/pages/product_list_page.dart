@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/features/product_list/presentation/widgets/filter_bottom_sheet.dart';
 import 'package:product_catalog_test/shared/data/datasources/product_datasource.dart';
 import 'package:product_catalog_test/shared/domain/entities/product_entity.dart';
@@ -79,11 +80,11 @@ class _ProductListViewState extends State<_ProductListView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Catalog'),
+        title: Text(AppStrings.productListTitle),
         leading: Builder(
           builder: (ctx) => IconButton(
             icon: const Icon(Icons.menu),
-            tooltip: 'Settings',
+            tooltip: AppStrings.settingsTooltip,
             onPressed: () => Scaffold.of(ctx).openDrawer(),
           ),
         ),
@@ -180,7 +181,7 @@ class _SearchBar extends StatelessWidget {
               controller: controller,
               onChanged: (query) => context.read<ProductListBloc>().add(SearchProductsEvent(query: query)),
               decoration: InputDecoration(
-                hintText: 'Search by name or SKU…',
+                hintText: AppStrings.searchHint,
                 hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(color: context.colors.textSecondary),
                 prefixIcon: Icon(Icons.search, color: context.colors.textSecondary),
                 suffixIcon: ValueListenableBuilder<TextEditingValue>(
@@ -207,7 +208,7 @@ class _SearchBar extends StatelessWidget {
                   Icons.filter_list,
                   color: hasActiveFilters ? context.colors.background : context.colors.surfaceSoft,
                 ),
-                tooltip: 'Filters',
+                tooltip: AppStrings.filtersTooltip,
                 onPressed: () async {
                   final filter = await FilterBottomSheet.show(context, initialFilter: currentFilter);
                   if (filter != null) {
@@ -259,8 +260,8 @@ class _GridView extends StatelessWidget {
       child: GridView.builder(
         controller: scrollController,
         padding: const EdgeInsets.all(AppDimens.spacingMd),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: AppDimens.productCardContentWidth,
           crossAxisSpacing: AppDimens.spacingMd,
           mainAxisSpacing: AppDimens.spacingMd,
           childAspectRatio: 0.68,
@@ -309,12 +310,12 @@ class _EmptyView extends StatelessWidget {
           Icon(Icons.inbox_outlined, size: 72, color: context.colors.textSecondary),
           const SizedBox(height: AppDimens.spacingMd),
           Text(
-            'No products found',
+            AppStrings.noProductsFound,
             style: Theme.of(context).textTheme.titleMedium!.copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppDimens.spacingXs),
           Text(
-            'Try changing the simulation mode in settings.',
+            AppStrings.noProductsSubtitle,
             style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
           ),
         ],
@@ -363,7 +364,7 @@ class _ActiveFiltersChips extends StatelessWidget {
               ),
             // In Stock chip
             if (filter!.inStockOnly)
-              FilterOptionChip(label: 'In Stock', isSelected: true, onTap: () {}, showCheckmark: false),
+              FilterOptionChip(label: AppStrings.inStockChip, isSelected: true, onTap: () {}, showCheckmark: false),
             // Sorting chip
             if (filter!.sorting != null)
               FilterOptionChip(

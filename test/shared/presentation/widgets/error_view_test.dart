@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/app_theme.dart';
 import 'package:product_catalog_test/shared/presentation/widgets/error_view.dart';
 
@@ -19,7 +20,7 @@ void main() {
     testWidgets('displays "Something went wrong" title', (tester) async {
       await tester.pumpWidget(_wrap(const ErrorView(message: 'Error detail')));
 
-      expect(find.text('Something went wrong'), findsOneWidget);
+      expect(find.text(AppStrings.somethingWentWrong), findsOneWidget);
     });
 
     testWidgets('shows error icon', (tester) async {
@@ -31,13 +32,13 @@ void main() {
     testWidgets('does NOT show Retry button when onRetry is null', (tester) async {
       await tester.pumpWidget(_wrap(const ErrorView(message: 'Error without retry')));
 
-      expect(find.text('Retry'), findsNothing);
+      expect(find.text(AppStrings.retry), findsNothing);
     });
 
     testWidgets('shows Retry button when onRetry is provided', (tester) async {
       await tester.pumpWidget(_wrap(ErrorView(message: 'Error with retry', onRetry: () {})));
 
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(AppStrings.retry), findsOneWidget);
     });
 
     testWidgets('calls onRetry when Retry button is tapped', (tester) async {
@@ -45,7 +46,7 @@ void main() {
 
       await tester.pumpWidget(_wrap(ErrorView(message: 'Tappable error', onRetry: () => retryTapped = true)));
 
-      await tester.tap(find.text('Retry'));
+      await tester.tap(find.text(AppStrings.retry));
       await tester.pump();
 
       expect(retryTapped, isTrue);

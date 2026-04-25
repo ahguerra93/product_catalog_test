@@ -16,6 +16,7 @@ abstract final class AppDimens {
   // Card / layout
   static const double productCardHeight = 260.0;
   static const double productCardContentHeight = 130.0;
+  static const double productCardContentWidth = 200.0;
   static const double productImageHeight = 140.0;
   static const double productDetailBannerHeight = 320.0;
   static const double searchBarHeight = 52.0;

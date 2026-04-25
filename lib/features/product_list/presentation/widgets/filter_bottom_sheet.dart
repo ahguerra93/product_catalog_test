@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/common/app_durations.dart';
 import '../../../../app_colors.dart';
 import '../../../../common/app_dimens.dart';
@@ -92,12 +93,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const FilterCategoryHeader(title: 'Filters'),
+                  const FilterCategoryHeader(title: AppStrings.filtersCategory),
                   _CurrencyFilterSection(selectedCurrency: _filter.currency, onCurrencyChanged: _updateCurrency),
                   _PriceRangeFilterSection(priceRange: _filter.priceRange, onPriceRangeChanged: _updatePriceRange),
                   _StockFilterSection(inStockOnly: _filter.inStockOnly, onStockOnlyChanged: _updateStockOnly),
                   const SizedBox(height: AppDimens.spacingMd),
-                  const FilterCategoryHeader(title: 'Order by'),
+                  const FilterCategoryHeader(title: AppStrings.orderByCategory),
                   _OrderByFilterSection(
                     sorting: _filter.sorting,
                     onSortTypeChanged: _updateSortType,
@@ -134,7 +135,10 @@ class _FilterHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Filters', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            AppStrings.filtersTitle,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
           IconButton(icon: const Icon(Icons.close), onPressed: onClose),
         ],
       ),
@@ -212,7 +216,7 @@ class _PriceRangeFilterSectionState extends State<_PriceRangeFilterSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const FilterCategoryHeader(title: 'Price Range'),
+        const FilterCategoryHeader(title: AppStrings.priceRangeCategory),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd),
           child: Column(
@@ -272,7 +276,7 @@ class _StockFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const FilterCategoryHeader(title: 'Availability'),
+        const FilterCategoryHeader(title: AppStrings.availabilityCategory),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd),
           child: Wrap(
@@ -280,7 +284,7 @@ class _StockFilterSection extends StatelessWidget {
             runSpacing: AppDimens.spacingSm,
             children: [
               FilterOptionChip(
-                label: 'In Stock Only',
+                label: AppStrings.inStockOnly,
                 isSelected: inStockOnly,
                 onTap: () {
                   onStockOnlyChanged(!inStockOnly);
@@ -321,7 +325,7 @@ class _OrderByFilterSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const FilterCategoryHeader(title: 'Sort Type'),
+        const FilterCategoryHeader(title: AppStrings.sortTypeCategory),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd),
           child: Wrap(
@@ -347,7 +351,7 @@ class _OrderByFilterSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppDimens.spacingMd),
-        const FilterCategoryHeader(title: 'Order'),
+        const FilterCategoryHeader(title: AppStrings.orderCategory),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd),
           child: Wrap(
@@ -395,10 +399,10 @@ class _FilterBottomActions extends StatelessWidget {
         spacing: AppDimens.spacingMd,
         children: [
           Expanded(
-            child: OutlinedButton(onPressed: onClearAll, child: const Text('Clear All')),
+            child: OutlinedButton(onPressed: onClearAll, child: Text(AppStrings.clearAll)),
           ),
           Expanded(
-            child: FilledButton(onPressed: onApply, child: const Text('Apply Filters')),
+            child: FilledButton(onPressed: onApply, child: Text(AppStrings.applyFilters)),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/shared/presentation/widgets/ripple_effect_widget.dart';
 import 'package:product_catalog_test/shared/utils/share_handler.dart';
 
@@ -49,7 +50,7 @@ class ProductCard extends StatelessWidget {
                           ),
 
                           Text(
-                            'SKU: ${product.sku}',
+                            '${AppStrings.skuPrefix}: ${product.sku}',
                             style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -138,7 +139,7 @@ class _StockBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDimens.radiusSm),
       ),
       child: Text(
-        inStock ? 'Stock: $stock' : 'Out of stock',
+        inStock ? AppStrings.stockCount(stock) : AppStrings.outOfStock,
         style: Theme.of(context).textTheme.labelSmall!.copyWith(color: statusColor),
       ),
     );

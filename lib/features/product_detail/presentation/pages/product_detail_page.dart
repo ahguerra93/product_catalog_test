@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app_colors.dart';
+import '../../../../common/app_strings.dart';
 import '../../../../common/app_dimens.dart';
 import '../../../../common/app_durations.dart';
 import '../../../../di/di.dart';
@@ -44,7 +45,7 @@ class _ProductDetailView extends StatelessWidget {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop(),
-              tooltip: 'Back',
+              tooltip: AppStrings.backTooltip,
             ),
             actions: [
               if (state is ProductDetailSuccess)
@@ -55,7 +56,7 @@ class _ProductDetailView extends StatelessWidget {
                     price: state.product.formattedPrice,
                     sku: state.product.sku,
                   ),
-                  tooltip: 'Share product',
+                  tooltip: AppStrings.shareProductTooltip,
                 ),
             ],
           ),
@@ -95,8 +96,8 @@ class _NotFoundView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Detail')),
-      body: const Center(child: Text('Product not found.')),
+      appBar: AppBar(title: Text(AppStrings.productDetailTitle)),
+      body: const Center(child: Text(AppStrings.productNotFound)),
     );
   }
 }
@@ -109,7 +110,7 @@ class _ErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Product Detail')),
+      appBar: AppBar(title: Text(AppStrings.productDetailTitle)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppDimens.spacingLg),
@@ -120,7 +121,7 @@ class _ErrorView extends StatelessWidget {
               const SizedBox(height: AppDimens.spacingMd),
               Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: AppDimens.spacingLg),
-              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Go Back')),
+              ElevatedButton(onPressed: () => Navigator.of(context).pop(), child: Text(AppStrings.goBack)),
             ],
           ),
         ),
@@ -153,7 +154,7 @@ class _ContentView extends StatelessWidget {
             Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Product updated successfully'),
+                content: Text(AppStrings.productUpdatedSuccess),
                 backgroundColor: context.colors.success,
                 duration: const Duration(seconds: 2),
               ),
@@ -260,7 +261,7 @@ class _ProductInfoSectionState extends State<_ProductInfoSection> {
             Text(widget.product.name, style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: AppDimens.spacingXs),
             Text(
-              'SKU: ${widget.product.sku}',
+              '${AppStrings.skuPrefix}: ${widget.product.sku}',
               style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
             ),
             const SizedBox(height: AppDimens.spacingLg),
@@ -278,8 +279,8 @@ class _ProductInfoSectionState extends State<_ProductInfoSection> {
             ),
             const SizedBox(height: AppDimens.spacingSm),
             _InfoRow(
-              label: 'Stock',
-              value: widget.product.stock > 0 ? '${widget.product.stock} units' : 'Out of stock',
+              label: AppStrings.stockLabel,
+              value: widget.product.stock > 0 ? AppStrings.stockUnits(widget.product.stock) : AppStrings.outOfStock,
               valueColor: widget.product.stock > 0 ? context.colors.success : context.colors.error,
             ),
             const SizedBox(height: AppDimens.spacingXl),
@@ -337,7 +338,10 @@ class _EditablePriceFieldState extends State<_EditablePriceField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Price', style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: context.colors.textSecondary)),
+        Text(
+          AppStrings.priceLabel,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: context.colors.textSecondary),
+        ),
         const SizedBox(height: AppDimens.spacingSm),
         TextFormField(
           controller: _controller,
@@ -353,7 +357,7 @@ class _EditablePriceFieldState extends State<_EditablePriceField> {
           validator: (value) {
             final price = double.tryParse(value ?? '');
             if (price == null || price <= 0) {
-              return 'Price must be greater than 0';
+              return AppStrings.priceMustBePositive;
             }
             return null;
           },
@@ -376,7 +380,10 @@ class _CurrencyDropdown extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Currency', style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: context.colors.textSecondary)),
+        Text(
+          AppStrings.currencyFormLabel,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: context.colors.textSecondary),
+        ),
         const SizedBox(height: AppDimens.spacingSm),
         DropdownButtonFormField<Currency>(
           initialValue: selectedCurrency,
@@ -392,7 +399,7 @@ class _CurrencyDropdown extends StatelessWidget {
           ),
           validator: (value) {
             if (value == null) {
-              return 'Please select a currency';
+              return AppStrings.pleaseSelectCurrency;
             }
             return null;
           },
@@ -446,7 +453,7 @@ class _StockStatusCard extends StatelessWidget {
           Icon(inStock ? Icons.check_circle_outline : Icons.remove_circle_outline, color: statusColor),
           const SizedBox(width: AppDimens.spacingSm),
           Text(
-            inStock ? 'Available – ready to ship' : 'Currently unavailable',
+            inStock ? AppStrings.availableStatus : AppStrings.unavailableStatus,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: statusColor, fontWeight: FontWeight.w600),
           ),
         ],
@@ -493,7 +500,7 @@ class _UpdateButtonBar extends StatelessWidget {
                       valueColor: AlwaysStoppedAnimation(context.colors.textOnPrimary),
                     ),
                   )
-                : const Text('Update Product'),
+                : Text(AppStrings.updateProduct),
           ),
         );
       },

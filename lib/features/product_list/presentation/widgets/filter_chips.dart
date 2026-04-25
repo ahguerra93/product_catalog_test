@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app_colors.dart';
+import '../../../../common/app_strings.dart';
 import '../../../../common/app_dimens.dart';
 
 /// Reusable filter chip for displaying filter options
@@ -50,7 +51,7 @@ class ClearFilterChip extends StatelessWidget {
         spacing: AppDimens.spacingXs,
         children: [
           Icon(Icons.close, size: 16, color: context.colors.error),
-          Text('Clear', style: TextStyle(color: context.colors.error)),
+          Text(AppStrings.clearChip, style: TextStyle(color: context.colors.error)),
         ],
       ),
       onSelected: (_) => onTap(),
