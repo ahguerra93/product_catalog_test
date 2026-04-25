@@ -2,7 +2,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'product_entity.freezed.dart';
 
-enum Currency { usd, bob }
+enum Currency {
+  usd('USD'),
+  bob('BOB');
+
+  final String label;
+
+  const Currency(this.label);
+}
 
 @freezed
 class ProductEntity with _$ProductEntity {
