@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import '../../../../common/app_durations.dart';
 import '../../../../shared/domain/entities/product_entity.dart';
 import '../../domain/usecases/update_product_usecase.dart';
@@ -47,10 +48,12 @@ class UpdateProductDetailCubit extends Cubit<UpdateProductDetailState> {
       if (result != null) {
         emit(UpdateProductDetailSuccess(updatedProduct: result));
       } else {
-        emit(const UpdateProductDetailError(message: 'Failed to update product'));
+        emit(const UpdateProductDetailError(message: AppStrings.somethingWentWrong));
+        emit(current);
       }
     } catch (e) {
       emit(UpdateProductDetailError(message: e.toString().replaceFirst('Exception: ', '')));
+      emit(current);
     }
   }
 }

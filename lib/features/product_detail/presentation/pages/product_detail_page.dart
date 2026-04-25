@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app_colors.dart';
 import '../../../../common/app_strings.dart';
@@ -348,6 +349,7 @@ class _EditablePriceFieldState extends State<_EditablePriceField> {
           enabled: !widget.isLoading,
           onChanged: widget.onChanged,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
           decoration: InputDecoration(
             hintText: '0.00',
             prefixText: '${widget.currency.displayLabel} ',
