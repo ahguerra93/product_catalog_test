@@ -13,7 +13,7 @@ void initProductListDependencies(GetIt getIt) {
 
   // Repository
   getIt.registerFactory<ProductListRepository>(
-    () => ProductListRepositoryImpl(dataSource: getIt<ProductMockDataSource>()),
+    () => ProductListRepositoryImpl(dataSource: getIt<ProductHiveDataSource>()),
   );
 
   // Use cases

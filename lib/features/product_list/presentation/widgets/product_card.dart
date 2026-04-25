@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:product_catalog_test/shared/presentation/widgets/ripple_effect_widget.dart';
 import '../../../../app_colors.dart';
 import '../../../../common/app_dimens.dart';
 import '../../../../shared/domain/entities/product_entity.dart';
@@ -11,31 +12,45 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
+    return Card(
+      clipBehavior: Clip.antiAlias,
+
+      child: CustomClickable(
+        onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          spacing: AppDimens.spacingSm,
           children: [
             _ProductImage(imageUrl: product.imageUrl),
+
             Padding(
-              padding: const EdgeInsets.all(AppDimens.spacingMd),
+              padding: const EdgeInsets.symmetric(horizontal: AppDimens.spacingMd),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppDimens.spacingXs,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    product.name,
-                    style: Theme.of(context).textTheme.titleSmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: Theme.of(context).textTheme.titleSmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      Text(
+                        'SKU: ${product.sku}',
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppDimens.spacingXs),
-                  Text(
-                    'SKU: ${product.sku}',
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
-                  ),
-                  const SizedBox(height: AppDimens.spacingSm),
+
                   Wrap(
                     spacing: AppDimens.spacingSm,
                     children: [
