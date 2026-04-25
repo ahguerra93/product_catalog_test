@@ -25,4 +25,13 @@ class ProductRepositoryImpl implements ProductRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<ProductEntity?> updateProduct(ProductEntity product) async {
+    try {
+      return await dataSource.updateProduct(product);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

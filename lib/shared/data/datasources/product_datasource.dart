@@ -6,6 +6,7 @@ import '../../domain/models/filter_query.dart';
 abstract class ProductDataSource {
   Future<List<ProductEntity>> fetchProducts({FilterQuery? filter});
   Future<ProductEntity?> fetchProductById(String id);
+  Future<ProductEntity?> updateProduct(ProductEntity product);
 }
 
 class ProductMockDataSource implements ProductDataSource {
@@ -153,6 +154,17 @@ class ProductMockDataSource implements ProductDataSource {
       SimulationMode.success => _mockProducts.where((p) => p.id == id).firstOrNull,
       SimulationMode.empty => null,
       SimulationMode.error => throw Exception('Failed to load product detail.'),
+    };
+  }
+
+  @override
+  Future<ProductEntity?> updateProduct(ProductEntity product) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    return switch (simulationMode) {
+      SimulationMode.success => product,
+      SimulationMode.empty => null,
+      SimulationMode.error => throw Exception('Failed to update product.'),
     };
   }
 }

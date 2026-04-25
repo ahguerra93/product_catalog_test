@@ -97,6 +97,17 @@ class ProductHiveDataSource implements ProductDataSource {
   @override
   Future<ProductEntity?> fetchProductById(String id) => getCachedProductById(id);
 
+  @override
+  Future<ProductEntity?> updateProduct(ProductEntity product) async {
+    _checkSimulationMode();
+    await Future.delayed(AppDurations.mockDataFetchDelay);
+
+    final box = await _openBox();
+    final model = ProductHiveModel.fromEntity(product);
+    await box.put(product.id, model);
+    return product;
+  }
+
   void _checkSimulationMode() {
     if (simulationMode == SimulationMode.error) {
       throw Exception('Failed to load from cache. Please try again.');
