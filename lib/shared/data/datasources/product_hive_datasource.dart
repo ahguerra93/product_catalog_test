@@ -33,6 +33,11 @@ class ProductHiveDataSource implements ProductDataSource {
     _checkSimulationMode();
     await Future.delayed(AppDurations.mockFastFetchDelay);
 
+    // Handle empty simulation mode
+    if (simulationMode == SimulationMode.empty) {
+      return [];
+    }
+
     final box = await _openBox();
     var results = box.values.toList();
     getIt<LoggerService>().logCacheHit('products_cache', hit: results.isNotEmpty);
@@ -91,6 +96,11 @@ class ProductHiveDataSource implements ProductDataSource {
   Future<ProductEntity?> getCachedProductById(String id) async {
     _checkSimulationMode();
     await Future.delayed(AppDurations.mockDetailFetchDelay);
+
+    // Handle empty simulation mode
+    if (simulationMode == SimulationMode.empty) {
+      return null;
+    }
 
     final box = await _openBox();
     final cached = box.get(id);
