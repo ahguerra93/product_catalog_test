@@ -1,4 +1,5 @@
 import '../../../../shared/domain/entities/product_entity.dart';
+import '../../../../shared/domain/models/filter_query.dart';
 
 abstract class ProductListState {
   const ProductListState();
@@ -20,8 +21,9 @@ class ProductListRefreshing extends ProductListState {
 
 class ProductListSuccess extends ProductListState {
   final List<ProductEntity> products;
+  final FilterQuery? currentFilter;
 
-  const ProductListSuccess({required this.products});
+  const ProductListSuccess({required this.products, this.currentFilter});
 }
 
 class ProductListEmpty extends ProductListState {

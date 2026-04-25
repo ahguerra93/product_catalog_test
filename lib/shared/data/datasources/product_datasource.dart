@@ -1,8 +1,10 @@
 import '../../../../shared/domain/entities/product_entity.dart';
+import '../../../../shared/domain/enums/sort_type.dart';
 import '../../../../shared/domain/enums/simulation_mode.dart';
+import '../../domain/models/filter_query.dart';
 
 abstract class ProductDataSource {
-  Future<List<ProductEntity>> fetchProducts({String? query});
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter});
   Future<ProductEntity?> fetchProductById(String id);
 }
 
@@ -87,7 +89,7 @@ class ProductMockDataSource implements ProductDataSource {
   ];
 
   @override
-  Future<List<ProductEntity>> fetchProducts({String? query}) async {
+  Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
     final List<ProductEntity> products = switch (simulationMode) {
@@ -96,14 +98,51 @@ class ProductMockDataSource implements ProductDataSource {
       SimulationMode.error => throw Exception('Failed to load products. Please try again.'),
     };
 
-    if (query == null || query.isEmpty) {
+    if (filter == null || !filter.hasActiveFilters) {
       return products;
     }
 
-    final q = query.toLowerCase();
-    return products.where((p) {
-      return p.name.toLowerCase().contains(q) || p.sku.toLowerCase().contains(q);
-    }).toList();
+    // Apply filters
+    var filtered = products;
+
+    // Filter by query (name or SKU)
+    if (filter.query != null && filter.query!.isNotEmpty) {
+      final q = filter.query!.toLowerCase();
+      filtered = filtered.where((p) {
+        return p.name.toLowerCase().contains(q) || p.sku.toLowerCase().contains(q);
+      }).toList();
+    }
+
+    // Filter by currency
+    if (filter.currency != null) {
+      filtered = filtered.where((p) => p.currency == filter.currency).toList();
+    }
+
+    // Filter by price range
+    if (filter.priceRange != null && filter.priceRange!.isValid) {
+      final minPrice = filter.priceRange!.minPrice ?? 0;
+      final maxPrice = filter.priceRange!.maxPrice ?? double.infinity;
+      filtered = filtered.where((p) => p.price >= minPrice && p.price <= maxPrice).toList();
+    }
+
+    // Filter by stock
+    if (filter.inStockOnly) {
+      filtered = filtered.where((p) => p.stock > 0).toList();
+    }
+
+    // Sort by price
+    if (filter.sorting != null) {
+      filtered.sort((a, b) {
+        final comparison = switch (filter.sorting!.sortType) {
+          SortType.price => a.price.compareTo(b.price),
+          SortType.name => a.name.compareTo(b.name),
+          SortType.sku => a.sku.compareTo(b.sku),
+        };
+        return filter.sorting!.orderBy.name == 'asc' ? comparison : -comparison;
+      });
+    }
+
+    return filtered;
   }
 
   @override
