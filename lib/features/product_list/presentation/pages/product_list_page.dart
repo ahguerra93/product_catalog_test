@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:product_catalog_test/shared/presentation/widgets/error_view.dart';
 import '../../../../app_colors.dart';
 
 import '../../../../common/app_dimens.dart';
@@ -77,7 +78,10 @@ class _ProductListViewState extends State<_ProductListView> {
                   ProductListRefreshing(:final cachedData) => _GridView(products: cachedData, isRefreshing: true),
                   ProductListSuccess(:final filteredProducts) => _GridView(products: filteredProducts),
                   ProductListEmpty() => const _EmptyView(),
-                  ProductListError(:final message) => _ErrorView(message: message),
+                  ProductListError(:final message) => ErrorView(
+                    message: message,
+                    onRetry: () => context.read<ProductListCubit>().fetchProducts(),
+                  ),
                   _ => const _LoadingView(),
                 };
               },
@@ -137,21 +141,33 @@ class _GridView extends StatelessWidget {
       color: context.colors.primary,
       onRefresh: () async {
         context.read<ProductListCubit>().refresh();
-        await context.read<ProductListCubit>().stream.firstWhere((s) => s is! ProductListRefreshing);
+        // await context.read<ProductListCubit>().stream.firstWhere((s) => s is! ProductListRefreshing);
       },
-      child: GridView.builder(
-        padding: const EdgeInsets.all(AppDimens.spacingMd),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: AppDimens.spacingMd,
-          mainAxisSpacing: AppDimens.spacingMd,
-          childAspectRatio: 0.68,
+      child: AnimatedOpacity(
+        duration: Duration(milliseconds: isRefreshing ? 0 : 300),
+        opacity: isRefreshing ? 0.6 : 1,
+        child: GridView.builder(
+          padding: const EdgeInsets.all(AppDimens.spacingMd),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: AppDimens.spacingMd,
+            mainAxisSpacing: AppDimens.spacingMd,
+            childAspectRatio: 0.68,
+          ),
+          itemCount: products.length,
+          itemBuilder: (context, index) {
+            final product = products[index];
+            return ProductCard(
+              product: product,
+              onTap: () async {
+                await context.push(AppRoutes.productDetail(product.id));
+                if (context.mounted) {
+                  context.read<ProductListCubit>().refresh();
+                }
+              },
+            );
+          },
         ),
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return ProductCard(product: product, onTap: () => context.push(AppRoutes.productDetail(product.id)));
-        },
       ),
     );
   }
@@ -187,41 +203,6 @@ class _EmptyView extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-
-  const _ErrorView({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimens.spacingLg),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 72, color: context.colors.error),
-            const SizedBox(height: AppDimens.spacingMd),
-            Text('Something went wrong', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: AppDimens.spacingXs),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(color: context.colors.textSecondary),
-            ),
-            const SizedBox(height: AppDimens.spacingLg),
-            ElevatedButton.icon(
-              onPressed: () => context.read<ProductListCubit>().fetchProducts(),
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-            ),
-          ],
-        ),
       ),
     );
   }
