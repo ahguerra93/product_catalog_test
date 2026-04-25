@@ -2,6 +2,8 @@ import '../../../../shared/domain/entities/product_entity.dart';
 import '../../../../shared/domain/enums/sort_type.dart';
 import '../../../../shared/domain/enums/simulation_mode.dart';
 import '../../domain/models/filter_query.dart';
+import '../../../config/logger_config.dart';
+import '../../../di/di.dart';
 
 abstract class ProductDataSource {
   Future<List<ProductEntity>> fetchProducts({FilterQuery? filter});
@@ -100,6 +102,12 @@ class ProductMockDataSource implements ProductDataSource {
     };
 
     if (filter == null || !filter.hasActiveFilters) {
+      getIt<LoggerService>().logDatasourceFetch(
+        'ProductMockDataSource',
+        'fetchProducts',
+        success: true,
+        data: products.length,
+      );
       return products;
     }
 
@@ -143,6 +151,12 @@ class ProductMockDataSource implements ProductDataSource {
       });
     }
 
+    getIt<LoggerService>().logDatasourceFetch(
+      'ProductMockDataSource',
+      'fetchProducts',
+      success: true,
+      data: filtered.length,
+    );
     return filtered;
   }
 
@@ -150,21 +164,37 @@ class ProductMockDataSource implements ProductDataSource {
   Future<ProductEntity?> fetchProductById(String id) async {
     await Future.delayed(const Duration(milliseconds: 400));
 
-    return switch (simulationMode) {
+    final product = switch (simulationMode) {
       SimulationMode.success => _mockProducts.where((p) => p.id == id).firstOrNull,
       SimulationMode.empty => null,
       SimulationMode.error => throw Exception('Failed to load product detail.'),
     };
+
+    getIt<LoggerService>().logDatasourceFetch(
+      'ProductMockDataSource',
+      'fetchProductById',
+      success: true,
+      data: product != null ? 'ID: $id' : null,
+    );
+    return product;
   }
 
   @override
   Future<ProductEntity?> updateProduct(ProductEntity product) async {
     await Future.delayed(const Duration(milliseconds: 600));
 
-    return switch (simulationMode) {
+    final result = switch (simulationMode) {
       SimulationMode.success => product,
       SimulationMode.empty => null,
       SimulationMode.error => throw Exception('Failed to update product.'),
     };
+
+    getIt<LoggerService>().logDatasourceFetch(
+      'ProductMockDataSource',
+      'updateProduct',
+      success: true,
+      data: 'Product: ${product.id}',
+    );
+    return result;
   }
 }

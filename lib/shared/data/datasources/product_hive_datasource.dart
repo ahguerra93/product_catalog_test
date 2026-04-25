@@ -5,6 +5,8 @@ import '../../domain/entities/product_entity.dart';
 import '../../domain/enums/simulation_mode.dart';
 import '../../domain/enums/sort_type.dart';
 import '../../domain/models/filter_query.dart';
+import '../../../config/logger_config.dart';
+import '../../../di/di.dart';
 import 'product_datasource.dart';
 
 class ProductHiveDataSource implements ProductDataSource {
@@ -33,9 +35,12 @@ class ProductHiveDataSource implements ProductDataSource {
 
     final box = await _openBox();
     var results = box.values.toList();
+    getIt<LoggerService>().logCacheHit('products_cache', hit: results.isNotEmpty);
 
     if (filter == null || !filter.hasActiveFilters) {
-      return results.map((m) => m.toEntity()).toList();
+      final entities = results.map((m) => m.toEntity()).toList();
+      getIt<LoggerService>().logDataAsJson('ProductHiveDataSource.getCachedProducts', entities);
+      return entities;
     }
 
     // Filter by query (name or SKU)
@@ -75,7 +80,9 @@ class ProductHiveDataSource implements ProductDataSource {
       });
     }
 
-    return results.map((m) => m.toEntity()).toList();
+    final entities = results.map((m) => m.toEntity()).toList();
+    getIt<LoggerService>().logDataAsJson('ProductHiveDataSource.getCachedProducts', entities);
+    return entities;
   }
 
   Future<ProductEntity?> getCachedProductById(String id) async {
@@ -83,7 +90,15 @@ class ProductHiveDataSource implements ProductDataSource {
     await Future.delayed(AppDurations.mockDetailFetchDelay);
 
     final box = await _openBox();
-    return box.get(id)?.toEntity();
+    final cached = box.get(id);
+    getIt<LoggerService>().logCacheHit('product_$id', hit: cached != null);
+
+    if (cached != null) {
+      final entity = cached.toEntity();
+      getIt<LoggerService>().logDataAsJson('ProductHiveDataSource.getCachedProductById', [entity]);
+      return entity;
+    }
+    return null;
   }
 
   Future<void> clearCache() async {
@@ -105,6 +120,7 @@ class ProductHiveDataSource implements ProductDataSource {
     final box = await _openBox();
     final model = ProductHiveModel.fromEntity(product);
     await box.put(product.id, model);
+    getIt<LoggerService>().logDataAsJson('ProductHiveDataSource.updateProduct', [product]);
     return product;
   }
 

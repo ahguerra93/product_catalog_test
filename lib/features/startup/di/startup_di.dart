@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:product_catalog_test/features/startup/data/datasources/local_faker_product_datasource.dart';
 import '../../../shared/data/datasources/product_hive_datasource.dart';
 import '../data/datasources/local_product_datasource.dart';
 import '../data/repositories/startup_repository_impl.dart';
@@ -8,7 +9,7 @@ import '../presentation/cubits/startup_cubit.dart';
 
 void initStartupDependencies(GetIt getIt) {
   // Data sources
-  getIt.registerSingleton<LocalProductDataSource>(LocalProductDataSource());
+  getIt.registerSingleton<LocalProductDataSource>(LocalFakerProductDataSource());
 
   // Repository
   getIt.registerSingleton<StartupRepository>(

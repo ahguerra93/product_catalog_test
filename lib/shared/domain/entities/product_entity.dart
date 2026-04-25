@@ -3,12 +3,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'product_entity.freezed.dart';
 
 enum Currency {
-  usd('USD'),
-  bob('BOB');
+  usd('USD', '\$'),
+  bob('BOB', 'Bs');
 
-  final String label;
+  final String code;
+  final String displayLabel;
 
-  const Currency(this.label);
+  const Currency(this.code, this.displayLabel);
 }
 
 @freezed

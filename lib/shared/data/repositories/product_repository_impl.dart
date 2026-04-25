@@ -2,6 +2,8 @@ import '../../domain/entities/product_entity.dart';
 import '../../domain/models/filter_query.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../datasources/product_datasource.dart';
+import '../../../config/logger_config.dart';
+import '../../../di/di.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   final ProductDataSource dataSource;
@@ -12,7 +14,8 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<List<ProductEntity>> fetchProducts({FilterQuery? filter}) async {
     try {
       return await dataSource.fetchProducts(filter: filter);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      getIt<LoggerService>().logRepositoryError('ProductRepository', 'fetchProducts', e, stackTrace);
       rethrow;
     }
   }
@@ -21,7 +24,8 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<ProductEntity?> fetchProductById(String id) async {
     try {
       return await dataSource.fetchProductById(id);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      getIt<LoggerService>().logRepositoryError('ProductRepository', 'fetchProductById', e, stackTrace);
       rethrow;
     }
   }
@@ -30,7 +34,8 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<ProductEntity?> updateProduct(ProductEntity product) async {
     try {
       return await dataSource.updateProduct(product);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      getIt<LoggerService>().logRepositoryError('ProductRepository', 'updateProduct', e, stackTrace);
       rethrow;
     }
   }
