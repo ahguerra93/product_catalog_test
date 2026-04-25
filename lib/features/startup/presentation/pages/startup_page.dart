@@ -11,10 +11,7 @@ class StartupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<StartupCubit>()..initialize(),
-      child: const _StartupView(),
-    );
+    return BlocProvider(create: (_) => getIt<StartupCubit>()..initialize(), child: const _StartupView());
   }
 }
 
@@ -34,10 +31,7 @@ class _StartupView extends StatelessWidget {
         body: BlocBuilder<StartupCubit, StartupState>(
           builder: (context, state) {
             if (state is StartupError) {
-              return _ErrorView(
-                message: state.message,
-                onRetry: () => context.read<StartupCubit>().initialize(),
-              );
+              return _ErrorView(message: state.message, onRetry: () => context.read<StartupCubit>().initialize());
             }
             return const _LoadingView();
           },
@@ -58,9 +52,7 @@ class _LoadingView extends StatelessWidget {
         children: [
           Text(
             'Product Catalog',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 32),
           const CircularProgressIndicator(),
@@ -84,27 +76,13 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: Theme.of(context).colorScheme.error),
             const SizedBox(height: 16),
-            Text(
-              'Failed to initialize app',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Failed to initialize app', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            FilledButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),

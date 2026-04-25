@@ -6,10 +6,7 @@ class StartupRepositoryImpl implements StartupRepository {
   final ProductHiveDataSource productHiveDataSource;
   final LocalProductDataSource localProductDataSource;
 
-  StartupRepositoryImpl({
-    required this.productHiveDataSource,
-    required this.localProductDataSource,
-  });
+  StartupRepositoryImpl({required this.productHiveDataSource, required this.localProductDataSource});
 
   @override
   Future<void> initializeData() async {

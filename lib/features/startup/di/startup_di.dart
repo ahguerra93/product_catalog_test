@@ -19,12 +19,8 @@ void initStartupDependencies(GetIt getIt) {
   );
 
   // Use cases
-  getIt.registerFactory<InitializeAppUseCase>(
-    () => InitializeAppUseCase(repository: getIt<StartupRepository>()),
-  );
+  getIt.registerFactory<InitializeAppUseCase>(() => InitializeAppUseCase(repository: getIt<StartupRepository>()));
 
   // Cubit
-  getIt.registerFactory<StartupCubit>(
-    () => StartupCubit(initializeAppUseCase: getIt<InitializeAppUseCase>()),
-  );
+  getIt.registerFactory<StartupCubit>(() => StartupCubit(initializeAppUseCase: getIt<InitializeAppUseCase>()));
 }
