@@ -6,6 +6,7 @@ class LocalFakerProductDataSource implements LocalProductDataSource {
   @override
   Future<List<ProductEntity>> loadProducts() async {
     final faker = Faker.instance;
+    faker.setLocale(FakerLocaleType.es_MX);
     return [
       for (int i = 0; i < 20; i++)
         ProductEntity(

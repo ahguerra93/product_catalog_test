@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/app_theme.dart';
 import 'package:product_catalog_test/features/product_list/presentation/widgets/filter_chips.dart';
 
@@ -43,10 +44,10 @@ void main() {
   });
 
   group('ClearFilterChip', () {
-    testWidgets('displays "Clear" label', (tester) async {
+    testWidgets('displays "Limpiar" label', (tester) async {
       await tester.pumpWidget(_wrap(ClearFilterChip(onTap: () {})));
 
-      expect(find.text('Clear'), findsOneWidget);
+      expect(find.text(AppStrings.clearChip), findsOneWidget);
     });
 
     testWidgets('shows close icon', (tester) async {

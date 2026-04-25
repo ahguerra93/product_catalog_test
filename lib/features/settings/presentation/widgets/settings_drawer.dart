@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../app_colors.dart';
+import '../../../../common/app_strings.dart';
 import '../../../../common/app_dimens.dart';
 import '../../../../shared/domain/enums/simulation_mode.dart';
 import '../cubits/settings_cubit.dart';
@@ -41,12 +42,12 @@ class _DrawerHeader extends StatelessWidget {
           Icon(Icons.settings, color: context.colors.textOnPrimary, size: 32),
           const SizedBox(height: AppDimens.spacingSm),
           Text(
-            'Settings',
+            AppStrings.settings,
             style: Theme.of(context).textTheme.headlineMedium!.copyWith(color: context.colors.textOnPrimary),
           ),
           const SizedBox(height: AppDimens.spacingXs),
           Text(
-            'Product Catalog',
+            AppStrings.settingsSubtitle,
             style: Theme.of(
               context,
             ).textTheme.bodySmall!.copyWith(color: context.colors.textOnPrimary.withValues(alpha: 0.8)),
@@ -68,7 +69,7 @@ class _SimulationModeTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Simulate App State',
+                AppStrings.simulateAppState,
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(color: context.colors.textSecondary),
               ),
               const SizedBox(height: AppDimens.spacingSm),
@@ -135,17 +136,17 @@ class _SimulationModeTile extends StatelessWidget {
 
   String _labelForMode(SimulationMode mode) {
     return switch (mode) {
-      SimulationMode.success => 'Success',
-      SimulationMode.empty => 'Empty',
-      SimulationMode.error => 'Error',
+      SimulationMode.success => AppStrings.simulationSuccess,
+      SimulationMode.empty => AppStrings.simulationEmpty,
+      SimulationMode.error => AppStrings.simulationError,
     };
   }
 
   String _descriptionForMode(SimulationMode mode) {
     return switch (mode) {
-      SimulationMode.success => 'Products load normally.',
-      SimulationMode.empty => 'Simulates an empty product list.',
-      SimulationMode.error => 'Simulates a network/data error.',
+      SimulationMode.success => AppStrings.simulationSuccessDesc,
+      SimulationMode.empty => AppStrings.simulationEmptyDesc,
+      SimulationMode.error => AppStrings.simulationErrorDesc,
     };
   }
 }

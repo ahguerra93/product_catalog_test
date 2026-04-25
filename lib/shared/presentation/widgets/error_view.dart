@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:product_catalog_test/app_colors.dart';
+import 'package:product_catalog_test/common/app_strings.dart';
 import 'package:product_catalog_test/common/app_dimens.dart';
 
 class ErrorView extends StatelessWidget {
@@ -18,7 +19,7 @@ class ErrorView extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, size: 72, color: context.colors.error),
             const SizedBox(height: AppDimens.spacingMd),
-            Text('Something went wrong', style: Theme.of(context).textTheme.titleMedium),
+            Text(AppStrings.somethingWentWrong, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: AppDimens.spacingXs),
             Text(
               message,
@@ -27,7 +28,7 @@ class ErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...{
               const SizedBox(height: AppDimens.spacingLg),
-              ElevatedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+              ElevatedButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: Text(AppStrings.retry)),
             },
           ],
         ),
