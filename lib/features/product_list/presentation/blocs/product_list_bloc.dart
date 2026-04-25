@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../common/app_durations.dart';
-import '../../../../shared/domain/entities/product_entity.dart';
 import '../../../../shared/domain/models/filter_query.dart';
 import '../../../../shared/domain/models/pagination_params.dart';
 import '../../domain/usecases/get_products_usecase.dart';
@@ -12,7 +11,6 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
   final GetProductsUseCase getProductsUseCase;
   FilterQuery _currentFilter = const FilterQuery();
   PaginationParams _pagination = PaginationParams.empty();
-  List<ProductEntity> _accumulatedProducts = [];
 
   ProductListBloc({required this.getProductsUseCase}) : super(const ProductListLoading()) {
     on<FetchProductsEvent>(_onFetch);
@@ -28,7 +26,6 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
 
     // Reset pagination for new fetch
     _pagination = PaginationParams.empty();
-    _accumulatedProducts = [];
 
     emit(const ProductListLoading());
     try {
@@ -41,7 +38,6 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
       if (products.isEmpty) {
         emit(const ProductListEmpty());
       } else {
-        _accumulatedProducts = products;
         final hasMore = products.length >= _pagination.limit;
         _pagination = _pagination.updateHasMore(hasMore);
         emit(ProductListSuccess(products: products, currentFilter: filter, pagination: _pagination));
@@ -63,18 +59,22 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
   }
 
   Future<void> _onLoadMore(LoadMoreProductsEvent event, Emitter<ProductListState> emit) async {
-    final currentState = state;
-    if (currentState is! ProductListSuccess) return;
     if (!_pagination.hasMore) return;
+    if (state is! ProductListSuccess) return;
+
+    final currentProducts = switch (state) {
+      ProductListSuccess(:final products) => products,
+      ProductListLoadingMore(:final products) => products,
+      ProductListNoMore(:final products) => products,
+      _ => null,
+    };
+
+    if (currentProducts == null) return;
 
     try {
-      // Mark as loading more
       _pagination = _pagination.markLoadingMore();
-      emit(
-        ProductListLoadingMore(products: _accumulatedProducts, currentFilter: _currentFilter, pagination: _pagination),
-      );
+      emit(ProductListLoadingMore(products: currentProducts, currentFilter: _currentFilter, pagination: _pagination));
 
-      // Fetch next page
       await Future.delayed(AppDurations.mockDataFetchDelay);
       final nextProducts = await getProductsUseCase(
         filter: _currentFilter.hasActiveFilters ? _currentFilter : null,
@@ -83,22 +83,13 @@ class ProductListBloc extends Bloc<ProductListEvent, ProductListState> {
       );
 
       if (nextProducts.isEmpty) {
-        // No more products
         _pagination = _pagination.updateHasMore(false);
-        emit(ProductListNoMore(products: _accumulatedProducts, currentFilter: _currentFilter));
+        emit(ProductListNoMore(products: currentProducts, currentFilter: _currentFilter));
       } else {
-        // Append new products
-        _accumulatedProducts.addAll(nextProducts);
+        final merged = [...currentProducts, ...nextProducts];
         final hasMore = nextProducts.length >= _pagination.limit;
         _pagination = _pagination.nextPage().updateHasMore(hasMore);
-        emit(
-          ProductListSuccess(
-            products: _accumulatedProducts,
-            currentFilter: _currentFilter,
-            pagination: _pagination,
-            isLoadingMore: false,
-          ),
-        );
+        emit(ProductListSuccess(products: merged, currentFilter: _currentFilter, pagination: _pagination));
       }
     } catch (e) {
       emit(ProductListError(message: e.toString().replaceFirst('Exception: ', '')));
